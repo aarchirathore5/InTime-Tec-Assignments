@@ -15,7 +15,7 @@ int preced(char opt) {
     return 0;
 }
 
-// To calculate
+// To calculate the operation
 int applyOp(int a, int b, char opt, int *error) {
     switch (opt) {
         case '+': return a + b;
