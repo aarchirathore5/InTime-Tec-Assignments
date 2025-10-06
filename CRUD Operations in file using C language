@@ -129,7 +129,7 @@ void delete() {
     rename("temp.txt", DATA_FILE);
 
     if (found) {
-        printf("User has been deleted successfully.\n");
+        printf("User has been deleted successfully\n");
     } else {
         printf("No such user exist with ID %d.\n", searchId);
     }
