@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+// To check it's a valid operator or not
+int validOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/');
+}
+
+// To follow the precedence
+int preced(char opt) {
+    if (opt == '+' || opt == '-') return 1;
+    if (opt == '*' || opt == '/') return 2;
+    return 0;
+}
+
+// To calculate the operation
+int applyOp(int a, int b, char opt, int *error) {
+    switch (opt) {
+        case '+': return a + b;
+        case '-': return a - b;
+        case '*': return a * b;
+        case '/': 
+            if (b == 0) {
+                *error = 1; // if divison by zero
+                return 0;
+            }
+            return a / b;  // if divison is by non zero
+    }
+    return 0;
+}
+
+// To evaluate the operation
+int evaluate(char *tokens, int *error) {
+    int i;
+    int values[100], valueTop = -1; // Stack of value
+    char ops[100]; int opsTop = -1; // Stack of operator
+
+    for (i = 0; i < strlen(tokens); i++) {
+        if (tokens[i] == ' ') continue; // Condition to ignore whitespaces
+
+        // If it is a number then only it will be parsed
+        if (isdigit(tokens[i])) {
+            int val = 0;
+            while (i < strlen(tokens) && isdigit(tokens[i])) {
+                val = (val * 10) + (tokens[i] - '0');
+                i++;
+            }
+            values[++valueTop] = val;
+            i--; // rollback one step
+        }
+        // If the character is invalid
+        else if (!validOperator(tokens[i])) {
+            *error = 2; // Invalid character
+            return 0;
+        }
+        // If the operator is encountered
+        else {
+            while (opsTop != -1 && preced(ops[opsTop]) >= preced(tokens[i])) {
+                int b = values[valueTop--];
+                int a = values[valueTop--];
+                char op = ops[opsTop--];
+                int result = applyOp(a, b, op, error);
+                if (*error == 1) return 0; // Division by zero
+                values[++valueTop] = result;
+            }
+            ops[++opsTop] = tokens[i];
+        }
+    }
+
+    // Apply remaining ops
+    while (opsTop != -1) {
+        int b = values[valueTop--];
+        int a = values[valueTop--];
+        char op = ops[opsTop--];
+        int result = applyOp(a, b, op, error);
+        if (*error == 1) return 0;
+        values[++valueTop] = result;
+    }
+
+    return values[valueTop];
+}
+
+int main() {
+    char expression[200];
+    printf("Enter expression: ");
+    fgets(expression, sizeof(expression), stdin);
+
+    // to remove any trailing line
+    expression[strcspn(expression, "\n")] = 0;
+
+    int errorFlag = 0;
+    int result = evaluate(expression, &errorFlag);
+
+    if (errorFlag == 1)
+        printf("Error: Division by zero.\n");
+    else if (errorFlag == 2)
+        printf("Error: Invalid expression.\n");
+    else
+        printf("%d\n", result);
+
+    return 0;
+}
