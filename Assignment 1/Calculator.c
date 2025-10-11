@@ -4,77 +4,77 @@
 #include <string.h>
 
 // To check it's a valid operator or not
-int validOperator(char c) {
-    return (c == '+' || c == '-' || c == '*' || c == '/');
+int validOperator(char character) {
+    return (character == '+' || character == '-' || character == '*' || character == '/');
 }
 
 // To follow the precedence
-int preced(char opt) {
-    if (opt == '+' || opt == '-') return 1;
-    if (opt == '*' || opt == '/') return 2;
+int preced(char operators) {
+    if (operators == '+' || operators == '-') return 1;
+    if (operators == '*' || operators == '/') return 2;
     return 0;
 }
 
 // To calculate the operation
-int applyOp(int a, int b, char opt, int *error) {
-    switch (opt) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
+int applyOp(int operatorOne, int operatorTwo, char operators, int *error) {
+    switch (operators) {
+        case '+': return operatorOne + operatorTwo;
+        case '-': return operatorOne - operatorTwo;
+        case '*': return operatorOne * operatorTwo;
         case '/': 
-            if (b == 0) {
+            if (operatorTwo == 0) {
                 *error = 1; // if divison by zero
                 return 0;
             }
-            return a / b;  // if divison is by non zero
+            return operatorOne / operatorTwo;  // if divison is by non zero
     }
     return 0;
 }
 
 // To evaluate the operation
 int evaluate(char *tokens, int *error) {
-    int i;
+    int position;
     int values[100], valueTop = -1; // Stack of value
-    char ops[100]; int opsTop = -1; // Stack of operator
+    char operatorStack[100]; int operatorTop = -1; // Stack of operator
 
-    for (i = 0; i < strlen(tokens); i++) {
-        if (tokens[i] == ' ') continue; // Condition to ignore whitespaces
+    for (position = 0; position < strlen(tokens); position++) {
+        if (tokens[position] == ' ') continue; // Condition to ignore whitespaces
 
         // If it is a number then only it will be parsed
-        if (isdigit(tokens[i])) {
-            int val = 0;
-            while (i < strlen(tokens) && isdigit(tokens[i])) {
-                val = (val * 10) + (tokens[i] - '0');
-                i++;
+        if (isdigit(tokens[position])) {
+            int value = 0;
+            while (position < strlen(tokens) && isdigit(tokens[position])) {
+                value = (value * 10) + (tokens[position] - '0');
+                position++;
             }
-            values[++valueTop] = val;
-            i--; // rollback one step
+            values[++valueTop] = value;
+            position--; // rollback one step
         }
         // If the character is invalid
-        else if (!validOperator(tokens[i])) {
+        else if (!validOperator(tokens[position])) {
             *error = 2; // Invalid character
             return 0;
         }
         // If the operator is encountered
         else {
-            while (opsTop != -1 && preced(ops[opsTop]) >= preced(tokens[i])) {
-                int b = values[valueTop--];
-                int a = values[valueTop--];
-                char op = ops[opsTop--];
-                int result = applyOp(a, b, op, error);
+            while (operatorTop != -1 && preced(operatorStack[operatorTop]) >= preced(tokens[position])) {
+                int operatorTwo = values[valueTop--];
+                int operatorOne = values[valueTop--];
+                char operators = operatorStack[operatorTop--];
+                int result = applyOp(operatorOne, operatorTwo, operators, error);
                 if (*error == 1) return 0; // Division by zero
                 values[++valueTop] = result;
             }
-            ops[++opsTop] = tokens[i];
+            operatorStack[++operatorTop] = tokens[position];
         }
     }
 
     // Apply remaining ops
-    while (opsTop != -1) {
-        int b = values[valueTop--];
-        int a = values[valueTop--];
-        char op = ops[opsTop--];
-        int result = applyOp(a, b, op, error);
+    while (operatorTop != -1) {
+        int operatorTwo = values[valueTop--];
+        int operatorOne = values[valueTop--];
+        char operators = operatorStack[operatorTop--];
+        int result = applyOp(operatorOne, operatorTwo, operators, error);
         if (*error == 1) return 0;
         values[++valueTop] = result;
     }
