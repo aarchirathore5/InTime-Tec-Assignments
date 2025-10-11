@@ -6,62 +6,62 @@
 
 // Using struct keyword to represent user
 typedef struct {
-    int id;
-    char name[50];
-    int age;
+    int userId;
+    char userName[50];
+    int userAge;
 } User;
 
 // To add a new user
-void create() {
-    FILE *fp = fopen(DATA_FILE, "a");
-    if (!fp) {
+void addUser() {
+    FILE *filePtr = fopen(DATA_FILE, "a");
+    if (!filePtr) {
         printf("Error: not able to open the file.\n");
         return;
     }
 
-    User u;
+    User newUser;
     printf(" Add a new user ");
     printf("Enter user ID: ");
-    scanf("%d", &u.id);
+    scanf("%d", &newUser.userId);
     printf("Enter name: ");
-    scanf("%s", u.name);
+    scanf("%s", newUser.userName);
     printf("Enter age: ");
-    scanf("%d", &u.age);
+    scanf("%d", &newUser.userAge);
 
-    fprintf(fp, "%d %s %d\n", u.id, u.name, u.age);
-    fclose(fp);
+    fprintf(filePtr, "%d %s %d\n", newUser.userId, newUser.userName, newUser.userAge);
+    fclose(filePtr);
 
     printf("The user has been added successfullly \n");
 }
 
 // To display existing users
-void display() {
-    FILE *fp = fopen(DATA_FILE, "r");
-    if (!fp) {
+void showUsers() {
+    FILE *filePtr = fopen(DATA_FILE, "r");
+    if (!filePtr) {
         printf("File is empty.\n");
         return;
     }
 
-    User u;
+    User currentUser;
     printf(" User List ");
-    while (fscanf(fp, "%d %s %d", &u.id, u.name, &u.age) == 3) {
-        printf("ID: %-3d | Name: %-15s | Age: %d\n", u.id, u.name, u.age);
+    while (fscanf(filePtr, "%d %s %d", &currentUser.userId, currentUser.userName, &currentUser.userAge) == 3) {
+        printf("ID: %-3d | Name: %-15s | Age: %d\n", currentUser.userId, currentUser.userName, currentUser.userAge);
     }
 
-    fclose(fp);
+    fclose(filePtr);
 }
 
 // To update an existing user
-void update() {
-    FILE *fp = fopen(DATA_FILE, "r");
-    if (!fp) {
+void updateUser() {
+    FILE *filePtr = fopen(DATA_FILE, "r");
+    if (!filePtr) {
         printf("Invalid user ID.\n");
         return;
     }
 
-    FILE *tmp = fopen("temp.txt", "w");
-    if (!tmp) {
-        fclose(fp);
+    FILE *tempFile = fopen("temp.txt", "w");
+    if (!tempFile) {
+        fclose(filePtr);
         printf("Error: could not create temporary file.\n");
         return;
     }
@@ -70,21 +70,21 @@ void update() {
     printf("\nEnter the ID of the user to update: ");
     scanf("%d", &searchId);
 
-    User u;
-    while (fscanf(fp, "%d %s %d", &u.id, u.name, &u.age) == 3) {
-        if (u.id == searchId) {
+    User currentUser;
+    while (fscanf(filePtr, "%d %s %d", &currentUser.userId, currentUser.userName, &currentUser.userAge) == 3) {
+        if (currentUser.userId == searchId) {
             found = 1;
-            printf("Updating user with ID %d\n", u.id);
+            printf("Updating user with ID %d\n", currentUser.userId);
             printf("Enter the new name: ");
-            scanf("%s", u.name);
+            scanf("%s", currentUser.userName);
             printf("Enter the new age: ");
-            scanf("%d", &u.age);
+            scanf("%d", &currentUser.userAge);
         }
-        fprintf(tmp, "%d %s %d\n", u.id, u.name, u.age);
+        fprintf(tempFile, "%d %s %d\n", currentUser.userId, currentUser.userName, currentUser.userAge);
     }
 
-    fclose(fp);
-    fclose(tmp);
+    fclose(filePtr);
+    fclose(tempFile);
     remove(DATA_FILE);
     rename("temp.txt", DATA_FILE);
 
@@ -95,17 +95,17 @@ void update() {
     }
 }
 
-// To delete a existing user
-void delete() {
-    FILE *fp = fopen(DATA_FILE, "r");
-    if (!fp) {
+// To delete an existing user
+void deleteUser() {
+    FILE *filePtr = fopen(DATA_FILE, "r");
+    if (!filePtr) {
         printf("No data file found.\n");
         return;
     }
 
-    FILE *tmp = fopen("temp.txt", "w");
-    if (!tmp) {
-        fclose(fp);
+    FILE *tempFile = fopen("temp.txt", "w");
+    if (!tempFile) {
+        fclose(filePtr);
         printf("Error: could not create temporary file.\n");
         return;
     }
@@ -114,17 +114,17 @@ void delete() {
     printf("\nEnter the ID of the user to delete from the file: ");
     scanf("%d", &searchId);
 
-    User u;
-    while (fscanf(fp, "%d %s %d", &u.id, u.name, &u.age) == 3) {
-        if (u.id == searchId) {
+    User currentUser;
+    while (fscanf(filePtr, "%d %s %d", &currentUser.userId, currentUser.userName, &currentUser.userAge) == 3) {
+        if (currentUser.userId == searchId) {
             found = 1;
             continue; // To skip this record
         }
-        fprintf(tmp, "%d %s %d\n", u.id, u.name, u.age);
+        fprintf(tempFile, "%d %s %d\n", currentUser.userId, currentUser.userName, currentUser.userAge);
     }
 
-    fclose(fp);
-    fclose(tmp);
+    fclose(filePtr);
+    fclose(tempFile);
     remove(DATA_FILE);
     rename("temp.txt", DATA_FILE);
 
@@ -135,30 +135,41 @@ void delete() {
     }
 }
 
+// Function to print menu options
+void printMenu() {
+    printf("User Management System\n");
+    printf("\n");
+    printf("1. Add User\n");
+    printf("2. Show All Users\n");
+    printf("3. Update User\n");
+    printf("4. Delete User\n");
+    printf("5. Exit\n");
+}
+
+// Function to handle menu choice
+void handleMenu(int choice) {
+    switch (choice) {
+        case 1: addUser(); break;
+        case 2: showUsers(); break;
+        case 3: updateUser(); break;
+        case 4: deleteUser(); break;
+        case 5:
+            printf("To exit the program\n");
+            exit(0);
+        default:
+            printf("The choice is Invalid. Please try again.\n");
+    }
+}
+
 int main() {
-    int choice;
+    int userChoice;
 
     while (1) {
-        printf("User Management System\n");
-        printf("\n");
-        printf("1. Add User\n");
-        printf("2. Show All Users\n");
-        printf("3. Update User\n");
-        printf("4. Delete User\n");
-        printf("5. Exit\n");
+        printMenu();
         printf("Choose an option: ");
-        scanf("%d", &choice);
-
-        switch (choice) {
-            case 1: create(); break;
-            case 2: display(); break;
-            case 3: update(); break;
-            case 4: delete(); break;
-            case 5:
-                printf("To exit the program\n");
-                return 0;
-            default:
-                printf("The choice is Invalid. Please try again.\n");
-        }
+        scanf("%d", &userChoice);
+        handleMenu(userChoice);
     }
+
+    return 0;
 }
