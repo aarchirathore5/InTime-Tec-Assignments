@@ -9,35 +9,39 @@ typedef struct
     float marks[3];
     float totalMarks;
     float averageMarks;
-    char grade;
+    enum Grade grade;
 } Student;
 
 
+// Enum for Grades
+enum Grade { GRADE_A = 'A', GRADE_B = 'B', GRADE_C = 'C', GRADE_D = 'D', GRADE_F = 'F' };
+
+
 // To get the grades
-char toGetGrades(float average) {
+enum Grade toGetGrades(float average) {
     switch ((int)(average / 5)) {
         case 17: case 18: case 19: case 20:
-            return 'A';
+            return GRADE_A;
         case 14: case 15: case 16:
-            return 'B';
+            return GRADE_B;
         case 10: case 11: case 12: case 13:
-            return 'C';
+            return GRADE_C;
         case 7: case 8: case 9:
-            return 'D';
+            return GRADE_D;
         default:
-            return 'F';
+            return GRADE_F;
     }
 }
 
 
 //To display the performance
-void displayPerformance(char grade) {
-    switch(grade) {
-        case 65: printf("Performance: *****\n"); break; // A
-        case 66: printf("Performance: ****\n"); break;  // B
-        case 67: printf("Performance: ***\n"); break;   // C
-        case 68: printf("Performance: **\n"); break;    // D
-        default: break; // For F or invalid grades
+void displayPerformance(enum Grade grade) {
+    switch (grade) {
+        case GRADE_A: printf("Performance: *****\n"); break;
+        case GRADE_B: printf("Performance: ****\n"); break;
+        case GRADE_C: printf("Performance: ***\n"); break;
+        case GRADE_D: printf("Performance: **\n"); break;
+        default: break;
     }
 }
 
