@@ -1,2 +1,2 @@
 # InTime-Tec-Assignments
-This repository contains my submitted assignments and practice problems completed as part of the Intime Tec training program.  
+Given an array of integers, the task is to reverse the array in-place using pointers.
