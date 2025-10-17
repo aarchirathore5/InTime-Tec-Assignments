@@ -2,24 +2,30 @@
 #include <stdlib.h>
 #include <time.h>
 
+
+// To Randomly Generate the Matrix
 void generateMatrix(int size, int matrix[size][size]) {
     srand(time(NULL));
     for (int row = 0; row < size; row++) {
         for (int column = 0; column < size; column++) {
-            matrix[row][column] = rand() % 256;
+           *(*(matrix + row) + column) = rand() % 256;
         }
     }
 }
 
+
+// To display all the Matrix
 void displayTheMatrix(int size, int matrix[size][size]) {
     for (int row = 0; row < size; row++) {
         for (int column = 0; column < size; column++) {
-            printf("%4d", matrix[row][column]);
+            printf("%4d", *(*(matrix + row) + column));
         }
         printf("\n");
     }
 }
 
+
+// To reverse the generated transpose matrix
 void reverseRows(int size, int matrix[size][size]) {
     for (int row = 0; row < size; row++) {
         int *left = *(matrix + row);
@@ -35,6 +41,8 @@ void reverseRows(int size, int matrix[size][size]) {
     }
 }
 
+
+//To transpose the matrix
 void transposeMatrix(int size, int matrix[size][size]) {
     for (int row = 0; row < size; row++) {
         for (int column = row + 1; column < size; column++) {
@@ -50,20 +58,20 @@ void transposeMatrix(int size, int matrix[size][size]) {
 }
 
 
+// To apply a 3X3 smoothening filter with the help of sliding window
 void applySmootheningFilter(int size, int matrix[size][size]) {
-    int tempMatrix[size][size];
+    int *tempRow = (int *)malloc(size * sizeof(int)); // O(N) space
 
     for (int row = 0; row < size; row++) {
         for (int column = 0; column < size; column++) {
             int sum = 0, count = 0;
-
 
             for (int windowRow = -1; windowRow <= 1; windowRow++) {
                 for (int windowCol = -1; windowCol <= 1; windowCol++) {
                     int neighborRow = row + windowRow;
                     int neighborCol = column + windowCol;
 
-
+                    // skip invalid boundaries
                     if (neighborRow >= 0 && neighborRow < size &&
                         neighborCol >= 0 && neighborCol < size) {
                         sum += *(*(matrix + neighborRow) + neighborCol);
@@ -71,18 +79,18 @@ void applySmootheningFilter(int size, int matrix[size][size]) {
                     }
                 }
             }
-
-            *(*(tempMatrix + row) + column) = sum / count;
+            *(tempRow + column) = sum / count;  // store temporary smoothed result
         }
-    }
 
-
-    for (int row = 0; row < size; row++) {
+        // Copying the smoothed values for this row back into the matrix
         for (int column = 0; column < size; column++) {
-            *(*(matrix + row) + column) = *(*(tempMatrix + row) + column);
+            *(*(matrix + row) + column) = *(tempRow + column);
         }
     }
+
+    free(tempRow);
 }
+
 
 int main() {
     int sizeOfMatrix = 0;
@@ -95,20 +103,20 @@ int main() {
     }
 
     int matrix[sizeOfMatrix][sizeOfMatrix];
-
+    // To call the function which randomly gnerates the Matrix
     printf("\nOriginal Randomly Generated Matrix:\n");
     generateMatrix(sizeOfMatrix, matrix);
+    // To display the randomly generated matrix
     displayTheMatrix(sizeOfMatrix, matrix);
-
-    applySmootheningFilter(sizeOfMatrix, matrix);
-    printf("\nMatrix after Applying Smoothening Filter:\n");
-    displayTheMatrix(sizeOfMatrix, matrix);
-
+    // To call the function which rotates the matrix 90 degree
     transposeMatrix(sizeOfMatrix, matrix);
     printf("\nMatrix after 90° Clockwise Rotation:\n");
+    // To display the new Matrix
     displayTheMatrix(sizeOfMatrix, matrix);
+    //To call the function which applies 3X3 Smoothening Filter
     applySmootheningFilter(sizeOfMatrix, matrix);
     printf("\nMatrix after Applying 3×3 Smoothing Filter:\n");
+    // To display the new matrix
     displayTheMatrix(sizeOfMatrix, matrix);
 
     return 0;
