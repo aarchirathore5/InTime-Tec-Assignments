@@ -4,33 +4,42 @@
 
 
 // To Randomly Generate the Matrix
-void generateMatrix(int size, int matrix[size][size]) {
+void generateMatrix(int size, int *matrix) {
     srand(time(NULL));
     for (int row = 0; row < size; row++) {
         for (int column = 0; column < size; column++) {
-           *(*(matrix + row) + column) = rand() % 256;
+           *(matrix + row*size + column) = rand() % 256;
         }
     }
 }
 
 
 // To display all the Matrix
-void displayTheMatrix(int size, int matrix[size][size]) {
+void displayTheMatrix(int size, int *matrix) {
     for (int row = 0; row < size; row++) {
         for (int column = 0; column < size; column++) {
-            printf("%4d", *(*(matrix + row) + column));
+            printf("%4d", *(matrix + row*size + column));
         }
         printf("\n");
     }
 }
 
 
-// To reverse the generated transpose matrix
-void reverseRows(int size, int matrix[size][size]) {
+// To rotate the Matrix 90 Degrees
+void rotateMatrix90Clockwise(int size, int *matrix) {
     for (int row = 0; row < size; row++) {
-        int *left = *(matrix + row);
-        int *right = *(matrix + row) + (size - 1);
+        for (int column = row + 1; column < size; column++) {
+            // transpose
+            int* firstValue = matrix + row*size + column;
+            int* secondValue = matrix + column*size + row;
+            int temp = *firstValue;
+            *firstValue = *secondValue;
+            *secondValue = temp;
+        }
 
+        // reverse this row in-place
+        int* left = matrix + row*size;
+        int* right = matrix + row*size + (size - 1);
         while (left < right) {
             int temp = *left;
             *left = *right;
@@ -42,24 +51,8 @@ void reverseRows(int size, int matrix[size][size]) {
 }
 
 
-//To transpose the matrix
-void transposeMatrix(int size, int matrix[size][size]) {
-    for (int row = 0; row < size; row++) {
-        for (int column = row + 1; column < size; column++) {
-            int *firstValue = *(matrix + row) + column;
-            int *secondValue = *(matrix + column) + row;
-
-            int temp = *firstValue;
-            *firstValue = *secondValue;
-            *secondValue = temp;
-        }
-    }
-    reverseRows(size, matrix);
-}
-
-
 // To apply a 3X3 smoothening filter with the help of sliding window
-void applySmootheningFilter(int size, int matrix[size][size]) {
+void applySmootheningFilter(int size, int *matrix) {
     int *tempRow = (int *)malloc(size * sizeof(int)); // O(N) space
 
     for (int row = 0; row < size; row++) {
@@ -74,7 +67,7 @@ void applySmootheningFilter(int size, int matrix[size][size]) {
                     // skip invalid boundaries
                     if (neighborRow >= 0 && neighborRow < size &&
                         neighborCol >= 0 && neighborCol < size) {
-                        sum += *(*(matrix + neighborRow) + neighborCol);
+                        sum += *(matrix + neighborRow*size + neighborCol);
                         count++;
                     }
                 }
@@ -84,7 +77,7 @@ void applySmootheningFilter(int size, int matrix[size][size]) {
 
         // Copying the smoothed values for this row back into the matrix
         for (int column = 0; column < size; column++) {
-            *(*(matrix + row) + column) = *(tempRow + column);
+            *(matrix + row*size + column) = *(tempRow + column);
         }
     }
 
@@ -102,22 +95,31 @@ int main() {
         return 1;
     }
 
-    int matrix[sizeOfMatrix][sizeOfMatrix];
-    // To call the function which randomly gnerates the Matrix
+    // Dynamic allocation
+    int *matrix = malloc(sizeOfMatrix * sizeOfMatrix * sizeof(int));
+
+    // To call the function which randomly generates the Matrix
     printf("\nOriginal Randomly Generated Matrix:\n");
     generateMatrix(sizeOfMatrix, matrix);
+
     // To display the randomly generated matrix
     displayTheMatrix(sizeOfMatrix, matrix);
+
     // To call the function which rotates the matrix 90 degree
-    transposeMatrix(sizeOfMatrix, matrix);
+    rotateMatrix90Clockwise(sizeOfMatrix, matrix);
     printf("\nMatrix after 90° Clockwise Rotation:\n");
+
     // To display the new Matrix
     displayTheMatrix(sizeOfMatrix, matrix);
-    //To call the function which applies 3X3 Smoothening Filter
+
+    // To call the function which applies 3X3 Smoothening Filter
     applySmootheningFilter(sizeOfMatrix, matrix);
     printf("\nMatrix after Applying 3×3 Smoothing Filter:\n");
+
     // To display the new matrix
     displayTheMatrix(sizeOfMatrix, matrix);
+
+    free(matrix); // free dynamically allocated memory
 
     return 0;
 }
