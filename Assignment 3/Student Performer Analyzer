@@ -1,0 +1,113 @@
+#include <stdio.h>
+
+
+// Using struct keyword to store student details
+typedef struct
+{
+    int rollNumber;
+    char name[50];
+    float marks[3];
+    float totalMarks;
+    float averageMarks;
+    enum Grade grade;
+} Student;
+
+
+// Enum for Grades
+enum Grade { GRADE_A = 'A', GRADE_B = 'B', GRADE_C = 'C', GRADE_D = 'D', GRADE_F = 'F' };
+
+
+// To get the grades
+enum Grade toGetGrades(float average) {
+    switch ((int)(average / 5)) {
+        case 17: case 18: case 19: case 20:
+            return GRADE_A;
+        case 14: case 15: case 16:
+            return GRADE_B;
+        case 10: case 11: case 12: case 13:
+            return GRADE_C;
+        case 7: case 8: case 9:
+            return GRADE_D;
+        default:
+            return GRADE_F;
+    }
+}
+
+
+//To display the performance
+void displayPerformance(enum Grade grade) {
+    switch (grade) {
+        case GRADE_A: printf("Performance: *****\n"); break;
+        case GRADE_B: printf("Performance: ****\n"); break;
+        case GRADE_C: printf("Performance: ***\n"); break;
+        case GRADE_D: printf("Performance: **\n"); break;
+        default: break;
+    }
+}
+
+
+//To display list of roll numbers via recursion 
+void printRollNumbers(int initial, int total) {
+    if(initial > total) {
+        return;
+    }
+    printf("%d ", initial);
+    printRollNumbers(initial + 1, total);
+}
+
+// To print the details 
+void printTheDetails(Student student[], int numberOfStudents) {
+
+    for (int studentIndex = 0; studentIndex < numberOfStudents; studentIndex++) {
+        printf("Roll: %d\n", student[studentIndex].rollNumber);
+        printf("Name: %s\n", student[studentIndex].name);
+        printf("Total: %.2f \n", student[studentIndex].totalMarks);
+        printf("Average: %.2f \n", student[studentIndex].averageMarks);
+        printf("Grade: %c \n", student[studentIndex].grade);
+        if (student[studentIndex].averageMarks < 35) {
+            continue;
+        }
+        displayPerformance(student[studentIndex].grade);
+    } 
+
+}
+
+
+//To take student details 
+void inputStudentDetails(Student student[], int numberOfStudents) {
+    for(int studentIndex = 0; studentIndex < numberOfStudents; studentIndex++) {
+        scanf("%d %s %f %f %f", 
+            &student[studentIndex].rollNumber, 
+            student[studentIndex].name, 
+            &student[studentIndex].marks[0], 
+            &student[studentIndex].marks[1], 
+            &student[studentIndex].marks[2]
+        );
+
+        //To calculate Total Marks 
+        float total = student[studentIndex].marks[0] + student[studentIndex].marks[1] + student[studentIndex].marks[2]; 
+            student[studentIndex].totalMarks = total; //Using Local Variable
+        //To calculate Average Marks 
+        student[studentIndex].averageMarks = student[studentIndex].totalMarks / 3; 
+        //To get the evaluated Grades 
+        student[studentIndex].grade = toGetGrades(student[studentIndex].averageMarks);
+    }
+}
+
+
+int main() {
+    int numberOfStudents = 0;
+    scanf("%d",&numberOfStudents);
+    if (numberOfStudents < 1 || numberOfStudents > 100) {
+        printf("Invalid number of students! (1 ≤ Number Of Students ≤ 100)\n");
+        return 1;
+    }
+    Student student[numberOfStudents];
+    inputStudentDetails(student, numberOfStudents);
+    printTheDetails(student, numberOfStudents);
+    //Recursive roll number list
+    printf("List of Roll Numbers (via recursion): ");
+    printRollNumbers(1, numberOfStudents);
+    printf("\n");
+    return 0;
+}
