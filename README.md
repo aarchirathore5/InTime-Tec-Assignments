@@ -1,4 +1,4 @@
 # InTime-Tec-Assignments
-Assignment-2-CRUD
-Write a program where user records are stored as a list of users with fields such as unique
-ID, Name, and Age. The file is named users.txt. 
+Hackerank-2-Array-Reversal
+Given an array of integers, the task is to reverse the array in-place using pointers.
+
