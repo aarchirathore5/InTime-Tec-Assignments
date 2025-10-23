@@ -1,0 +1,15 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+
+int main() {
+    int number, sumOfDigits = 0;
+    scanf("%d", &number);
+    while(number) {
+        sumOfDigits += number % 10;
+        number /= 10;
+    }
+    printf("%d\n", sumOfDigits);
+    return 0;
+}
