@@ -1,0 +1,261 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+//Declaring a Global Variable so whenever we add a new product it gets updated everywhere
+int size = 0;
+
+//Using struct function to use multiple data type
+typedef struct {
+    int productId;
+    char productName[50];
+    float price;
+    int quantity;
+}Details;
+
+
+//Taking Inpurt from the user for the first time
+void takeInputsFromUser(Details *details) {
+    for(int index = 0; index < size; index++) {
+        printf("Enter details of each product: %d \n", index + 1);
+        printf("Product Id: ");  
+        scanf("%d", &(details + index)->productId);
+        printf("Product Name: ");
+        scanf("%s",(details + index)->productName);
+        printf("Product Price: ");
+        scanf("%f", &(details + index)->price);
+        printf("Product Quantity:");
+        scanf("%d", &(details + index)->quantity);
+    }    
+}
+
+
+//To display the given menu
+void displayTheMenu() {
+    printf("\n");
+    printf("========= INVENTORY MENU ========= \n");
+    printf("1. Add New Product \n");
+    printf("2. View All Products \n");
+    printf("3. Update Quantity \n");
+    printf("4. Search Product by ID\n");
+    printf("5. Search Product by Name\n");
+    printf("6. Search Product by Price Range\n");
+    printf("7. Delete Product\n");
+    printf("8. Exit\n");
+}
+
+
+//To realloc the memory and a new user
+void addNewProduct(Details **details) {
+    size++;
+    *details = realloc(*details,size * sizeof(Details));
+    if(*details == NULL) {
+        printf("Memory Allocation Failed");
+        exit (1);
+    }
+    Details *newProduct = *details + size - 1;
+    printf("Enter details of new product: \n");
+    printf("Product Id: ");  
+    scanf("%d", &(newProduct->productId));
+    printf("Product Name: ");
+    scanf("%s",(newProduct->productName));
+    printf("Product Price: ");
+    scanf("%f", &(newProduct->price));
+    printf("Product Quantity:");
+    scanf("%d", &(newProduct->quantity));
+    printf("Product added successfully!\n");
+
+}
+
+
+//To view all the added products
+void viewAllProduct(Details *details) {
+    if (size == 0) {
+        printf("No products available.\n");
+        return;
+    }
+    printf("====== ALL PRODUCTS ======\n");
+    for (int index = 0; index < size; index++) {
+        printf("Product ID: %d | Name: %s | Price: %.2f | Quantity: %d \n",
+            (details + index)->productId, 
+            (details + index)->productName,
+            (details + index)->price,
+            (details + index)->quantity
+        );
+    }
+}
+
+
+//To update the existing quantity through product ID
+void updateQuantity(Details *details) {
+    int searchId = 0;
+    int newQuantity = 0;
+    int found = 0;
+    printf("Enter Product ID to update quantity: \n");
+    scanf("%d", &searchId);
+    printf("Enter new Quantity: ");
+    scanf("%d", &newQuantity);
+    for(int index = 0; index < size; index++) {
+        if(searchId == ((details + index)->productId)) {
+            ((details + index)->quantity) = newQuantity;
+            found = 1;
+            printf("Quantity updated successfully! \n");
+        }    
+    }
+    if (!found) {
+        printf("Product ID %d not found.\n", searchId);
+    }
+}
+
+
+//To search the product through product ID
+void searchProductById(Details *details){
+    int searchId;
+    int found = 0;
+    printf("Enter Product ID to search: ");
+    scanf("%d", &searchId);
+    for(int index = 0; index < size; index++ ) {
+        if(searchId == ((details + index)->productId)) {
+            found = 1;
+            printf("Product Found: Product ID: %d | Name: %s | Price: %.2f |Quantity: %d \n", 
+                (details + index)->productId, 
+                (details + index)->productName,
+                (details + index)->price,
+                (details + index)->quantity
+            );
+        }
+    }
+    if(!found) {
+        printf("Invalid Product ID \n");
+    }
+}
+
+
+//To search the product through name
+void searchProductByName(Details *details) {
+    char name;
+    int found = 0;
+    printf("Enter name to search (partial allowed): ");
+    scanf("%s", &name);
+    for(int index = 0; index < size; index++ ) {
+        if(*(details + index)->productName == name) {
+            printf("Product Found: Product ID: %d | Name: %s | Price: %.2f |Quantity: %d \n", 
+                (details + index)->productId, 
+                (details + index)->productName,
+                (details + index)->price,
+                (details + index)->quantity
+            );
+        }
+    }
+    if(!found) {
+        printf("Product with the name %c doesn't exist", name);
+    }
+
+}
+
+
+//To search product through price range
+void searchProductByPrice(Details *details) {
+    float minimumPrice;
+    float maximumPrice;
+    int found = 0;
+    printf("Enter minimum price: ");
+    scanf("%f", &minimumPrice);
+    printf("Enter maximum price: ");
+    scanf("%f", &maximumPrice);
+    printf("Products in price range: \n");
+    for(int index = 0; index < size; index++) {
+        if(minimumPrice <= ((details + index)->price) && maximumPrice >= ((details + index)->price)) {
+            found = 1;
+            printf("Product ID: %d | Name: %s | Price: %.2f |Quantity: %d \n", 
+                (details + index)->productId, 
+                (details + index)->productName,
+                (details + index)->price,
+                (details + index)->quantity
+            );
+        }
+    }
+    if(!found) {
+        printf("Not Found");
+    }
+}
+
+
+//To delete the product by product ID
+void deleteProductById(Details **details) {
+    int deleteId;
+    int found = 0;
+    printf("Enter Product ID to delete: ");
+    scanf("%d", &deleteId);
+    for(int index = 0; index < size; index++ ) {
+        if(deleteId == (*details + index)->productId){
+            for(int position = index; position <size - 1; position++) {
+                *(*details + position) = *(*details + position + 1);
+            }
+            size--;
+            *details = realloc(*details,size * sizeof(Details));
+            if(*details == NULL) {
+                printf("Memory reallocation failed.\n");
+                exit(1);
+            }
+            printf("Product with ID %d deleted successfully!\n", deleteId);
+            found = 1;
+            break;
+
+        }
+    }
+    if(!found) {
+        printf("Product with ID %d not found.\n", deleteId);
+    }   
+}
+
+
+// The Main menu where we can the function for the particular action will be called
+void selectFromTheMenu(Details **details){
+    int choice;
+    do{ 
+        displayTheMenu();
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch(choice){
+            case 1:
+                    addNewProduct(details);
+                    break;
+            case 2:
+                    viewAllProduct(*details);
+                    break;
+            case 3:
+                    updateQuantity(*details);
+                    break;
+            case 4:
+                    searchProductById(*details);
+                    break;
+            case 5:
+                    searchProductByName(*details);
+                    break;
+            case 6:
+                    searchProductByPrice(*details);
+                    break;
+            case 7:
+                    deleteProductById(details);
+                    break;
+            case 8:printf("Memory released successfully. Exiting program...");break;
+        }
+    }
+    while(choice != 8);
+    free(*details);
+}
+
+
+int main() {
+    printf("Enter the initial number of products : ");
+    scanf("%d", &size);
+    Details *details = (Details *)calloc(size, sizeof(Details));
+    if(details == NULL) {
+        printf("Memory Allocation Failed");
+        return 1;
+    }
+    takeInputsFromUser(details);
+    selectFromTheMenu(&details);
+    return 0;
+}
