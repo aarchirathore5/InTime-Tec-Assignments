@@ -1,0 +1,11 @@
+SinglyLinkedListNode* removeDuplicates(SinglyLinkedListNode* llist) {
+    SinglyLinkedListNode* toRemove = llist;
+    while(toRemove != NULL && toRemove->next != NULL) {
+        if(toRemove->data == toRemove->next->data) {
+            toRemove->next = toRemove->next->next;
+        }
+        else {
+            toRemove = toRemove->next;
+        }
+    }return llist;
+}
