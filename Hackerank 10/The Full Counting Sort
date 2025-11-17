@@ -1,0 +1,52 @@
+void countSort(int arr_rows, int arr_columns, char*** arr) {
+    typedef struct BucketNode {
+        char *stringValue;
+        struct BucketNode *nextNode;
+    } BucketNode;
+
+    BucketNode *bucketHeads[100];
+    BucketNode *bucketTails[100];
+
+    int bucketIndex;
+    for (bucketIndex = 0; bucketIndex < 100; bucketIndex++) {
+        bucketHeads[bucketIndex] = NULL;
+        bucketTails[bucketIndex] = NULL;
+    }
+
+    int rowIndex;
+    for (rowIndex = 0; rowIndex < arr_rows; rowIndex++) {
+        char **currentPair = arr[rowIndex];
+        int integerKey = atoi(currentPair[0]);
+
+        char *storedString;
+        if (rowIndex < arr_rows / 2) {
+            storedString = "-";
+        } else {
+            storedString = currentPair[1];
+        }
+
+        BucketNode *newBucketNode = (BucketNode *)malloc(sizeof(BucketNode));
+        newBucketNode->stringValue = storedString;
+        newBucketNode->nextNode = NULL;
+
+        if (bucketHeads[integerKey] == NULL) {
+            bucketHeads[integerKey] = newBucketNode;
+            bucketTails[integerKey] = newBucketNode;
+        } else {
+            bucketTails[integerKey]->nextNode = newBucketNode;
+            bucketTails[integerKey] = newBucketNode;
+        }
+    }
+
+    int printBucketIndex;
+    for (printBucketIndex = 0; printBucketIndex < 100; printBucketIndex++) {
+        BucketNode *currentNode = bucketHeads[printBucketIndex];
+        while (currentNode != NULL) {
+            printf("%s", currentNode->stringValue);
+            printf(" ");
+            BucketNode *nextNode = currentNode->nextNode;
+            free(currentNode);
+            currentNode = nextNode;
+        }
+    }
+}
