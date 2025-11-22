@@ -1,0 +1,51 @@
+int sherlockAndAnagrams(char* s) {
+    int stringLength = strlen(s);
+    int totalAnagramPairCount = 0;
+    int substringLength;
+
+    for (substringLength = 1; substringLength < stringLength; substringLength++) {
+        int substringCount = stringLength - substringLength + 1;
+        int (*substringFrequencyArray)[26] = malloc(substringCount * sizeof *substringFrequencyArray);
+        if (substringFrequencyArray == NULL) {
+            return 0;
+        }
+
+        int substringStartIndex;
+        for (substringStartIndex = 0; substringStartIndex < substringCount; substringStartIndex++) {
+            int characterIndex;
+            for (characterIndex = 0; characterIndex < 26; characterIndex++) {
+                substringFrequencyArray[substringStartIndex][characterIndex] = 0;
+            }
+
+            int substringOffsetIndex;
+            for (substringOffsetIndex = 0; substringOffsetIndex < substringLength; substringOffsetIndex++) {
+                char currentCharacter = *(s + substringStartIndex + substringOffsetIndex);
+                int alphabetIndex = (int)(currentCharacter - 'a');
+                substringFrequencyArray[substringStartIndex][alphabetIndex]++;
+            }
+        }
+
+        int firstSubstringIndex;
+        for (firstSubstringIndex = 0; firstSubstringIndex < substringCount; firstSubstringIndex++) {
+            int secondSubstringIndex;
+            for (secondSubstringIndex = firstSubstringIndex + 1; secondSubstringIndex < substringCount; secondSubstringIndex++) {
+                bool frequencyMatch = true;
+                int frequencyIndex;
+                for (frequencyIndex = 0; frequencyIndex < 26; frequencyIndex++) {
+                    if (substringFrequencyArray[firstSubstringIndex][frequencyIndex] !=
+                        substringFrequencyArray[secondSubstringIndex][frequencyIndex]) {
+                        frequencyMatch = false;
+                        break;
+                    }
+                }
+                if (frequencyMatch) {
+                    totalAnagramPairCount++;
+                }
+            }
+        }
+
+        free(substringFrequencyArray);
+    }
+
+    return totalAnagramPairCount;
+}

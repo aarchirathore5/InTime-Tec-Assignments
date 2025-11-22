@@ -1,0 +1,135 @@
+int minimumMoves(int grid_count, char** grid, int startX, int startY, int goalX, int goalY) {
+    int gridSize = grid_count;
+    int totalCells = gridSize * gridSize;
+
+    int* distanceArray = (int*)malloc(totalCells * sizeof(int));
+    if (distanceArray == NULL) {
+        return -1;
+    }
+
+    int cellIndex;
+    for (cellIndex = 0; cellIndex < totalCells; cellIndex++) {
+        *(distanceArray + cellIndex) = -1;
+    }
+
+    int* queueRowArray = (int*)malloc(totalCells * sizeof(int));
+    int* queueColumnArray = (int*)malloc(totalCells * sizeof(int));
+    if (queueRowArray == NULL || queueColumnArray == NULL) {
+        free(distanceArray);
+        return -1;
+    }
+
+    int queueFrontIndex = 0;
+    int queueBackIndex = 0;
+
+    *(queueRowArray + queueBackIndex) = startX;
+    *(queueColumnArray + queueBackIndex) = startY;
+    queueBackIndex++;
+
+    int startCellIndex = startX * gridSize + startY;
+    *(distanceArray + startCellIndex) = 0;
+
+    int resultDistance = -1;
+
+    while (queueFrontIndex < queueBackIndex) {
+        int currentRowIndex = *(queueRowArray + queueFrontIndex);
+        int currentColumnIndex = *(queueColumnArray + queueFrontIndex);
+        queueFrontIndex++;
+
+        int currentCellIndex = currentRowIndex * gridSize + currentColumnIndex;
+        int currentCellDistance = *(distanceArray + currentCellIndex);
+
+        if (currentRowIndex == goalX && currentColumnIndex == goalY) {
+            resultDistance = currentCellDistance;
+            break;
+        }
+
+        int nextRowIndex;
+        int nextColumnIndex;
+        char* rowPointer;
+        char cellCharacter;
+
+        nextRowIndex = currentRowIndex + 1;
+        nextColumnIndex = currentColumnIndex;
+        while (nextRowIndex < gridSize) {
+            rowPointer = *(grid + nextRowIndex);
+            cellCharacter = *(rowPointer + nextColumnIndex);
+            if (cellCharacter == 'X') {
+                break;
+            }
+            int nextCellIndex = nextRowIndex * gridSize + nextColumnIndex;
+            if (*(distanceArray + nextCellIndex) == -1) {
+                *(distanceArray + nextCellIndex) = currentCellDistance + 1;
+                *(queueRowArray + queueBackIndex) = nextRowIndex;
+                *(queueColumnArray + queueBackIndex) = nextColumnIndex;
+                queueBackIndex++;
+            }
+            nextRowIndex++;
+        }
+
+        nextRowIndex = currentRowIndex - 1;
+        nextColumnIndex = currentColumnIndex;
+        while (nextRowIndex >= 0) {
+            rowPointer = *(grid + nextRowIndex);
+            cellCharacter = *(rowPointer + nextColumnIndex);
+            if (cellCharacter == 'X') {
+                break;
+            }
+            int nextCellIndex = nextRowIndex * gridSize + nextColumnIndex;
+            if (*(distanceArray + nextCellIndex) == -1) {
+                *(distanceArray + nextCellIndex) = currentCellDistance + 1;
+                *(queueRowArray + queueBackIndex) = nextRowIndex;
+                *(queueColumnArray + queueBackIndex) = nextColumnIndex;
+                queueBackIndex++;
+            }
+            nextRowIndex--;
+        }
+
+        nextRowIndex = currentRowIndex;
+        nextColumnIndex = currentColumnIndex + 1;
+        while (nextColumnIndex < gridSize) {
+            rowPointer = *(grid + nextRowIndex);
+            cellCharacter = *(rowPointer + nextColumnIndex);
+            if (cellCharacter == 'X') {
+                break;
+            }
+            int nextCellIndex = nextRowIndex * gridSize + nextColumnIndex;
+            if (*(distanceArray + nextCellIndex) == -1) {
+                *(distanceArray + nextCellIndex) = currentCellDistance + 1;
+                *(queueRowArray + queueBackIndex) = nextRowIndex;
+                *(queueColumnArray + queueBackIndex) = nextColumnIndex;
+                queueBackIndex++;
+            }
+            nextColumnIndex++;
+        }
+
+        nextRowIndex = currentRowIndex;
+        nextColumnIndex = currentColumnIndex - 1;
+        while (nextColumnIndex >= 0) {
+            rowPointer = *(grid + nextRowIndex);
+            cellCharacter = *(rowPointer + nextColumnIndex);
+            if (cellCharacter == 'X') {
+                break;
+            }
+            int nextCellIndex = nextRowIndex * gridSize + nextColumnIndex;
+            if (*(distanceArray + nextCellIndex) == -1) {
+                *(distanceArray + nextCellIndex) = currentCellDistance + 1;
+                *(queueRowArray + queueBackIndex) = nextRowIndex;
+                *(queueColumnArray + queueBackIndex) = nextColumnIndex;
+                queueBackIndex++;
+            }
+            nextColumnIndex--;
+        }
+    }
+
+    if (resultDistance == -1) {
+        int goalCellIndex = goalX * gridSize + goalY;
+        resultDistance = *(distanceArray + goalCellIndex);
+    }
+
+    free(distanceArray);
+    free(queueRowArray);
+    free(queueColumnArray);
+
+    return resultDistance;
+}
