@@ -12,16 +12,15 @@
 char* readline();
 char* ltrim(char*);
 char* rtrim(char*);
+char** split_string(char*);
 
 int parse_int(char*);
 
 /*
- * Complete the 'matchingStrings' function below.
+ * Complete the 'jimOrders' function below.
  *
  * The function is expected to return an INTEGER_ARRAY.
- * The function accepts following parameters:
- *  1. STRING_ARRAY stringList
- *  2. STRING_ARRAY queries
+ * The function accepts 2D_INTEGER_ARRAY orders as parameter.
  */
 
 /*
@@ -52,61 +51,63 @@ int parse_int(char*);
  *
  */
 //THIS IS MY CODE
-int* matchingStrings(int stringList_count, char** stringList, int queries_count, char** queries, int* result_count) {
-    *result_count = queries_count;
-    int *result = malloc(queries_count * sizeof(int));
-    for(int queryIndex = 0; queryIndex < queries_count; queryIndex++) {
-        int count = 0;
-        char *query = *(queries + queryIndex);
-        for(int strIndex = 0; strIndex < stringList_count; strIndex++) {
-            char *str = *(stringList + strIndex);
-            char *ptr1 = query;
-            char *ptr2 = str;
-            while(*ptr1 != '\0' && *ptr2 != '\0' && *ptr1 == *ptr2) {
-                ptr1++;
-                ptr2++;
-            }
-            if(*ptr1 == '\0' && *ptr2 == '\0') {
-                count++;
-            }
-        }
-        *(result + queryIndex) = count;
+int* jimOrders(int orders_rows, int orders_columns, int** orders, int* result_count) {
+    int *totalSum = malloc(orders_rows * sizeof(int));
+    int *customer = malloc(orders_rows * sizeof(int));
+    for(int rowIndex = 0; rowIndex < orders_rows; rowIndex++) {
+        int servingTime = *(*(orders + rowIndex) + 0) + *(*(orders + rowIndex) + 1) ;  
+        *(totalSum + rowIndex) = servingTime;
+        *(customer + rowIndex) = rowIndex + 1;
     }
-    return result;
+    for(int index = 1; index < orders_rows; index++) {
+        int currentTime = *(totalSum + index);
+        int currentCustomer = *(customer + index);
+        int position = index - 1;
+        while (position >= 0 && (
+            *(totalSum + position) > currentTime ||
+            (*(totalSum + position) == currentTime && *(customer + position) > currentCustomer)
+        )) {
+            *(totalSum + position + 1) = *(totalSum + position);
+            *(customer + position + 1) = *(customer + position);
+            position--;
+        }
+
+        *(totalSum + position + 1) = currentTime;
+        *(customer + position + 1) = currentCustomer;
+    }
+
+    *result_count = orders_rows;
+    return customer;
 }
 
 int main()
 {
     FILE* fptr = fopen(getenv("OUTPUT_PATH"), "w");
 
-    int stringList_count = parse_int(ltrim(rtrim(readline())));
+    int n = parse_int(ltrim(rtrim(readline())));
 
-    char** stringList = malloc(stringList_count * sizeof(char*));
+    int** orders = malloc(n * sizeof(int*));
 
-    for (int i = 0; i < stringList_count; i++) {
-        char* stringList_item = readline();
+    for (int i = 0; i < n; i++) {
+        *(orders + i) = malloc(2 * (sizeof(int)));
 
-        *(stringList + i) = stringList_item;
+        char** orders_item_temp = split_string(rtrim(readline()));
+
+        for (int j = 0; j < 2; j++) {
+            int orders_item = parse_int(*(orders_item_temp + j));
+
+            *(*(orders + i) + j) = orders_item;
+        }
     }
 
-    int queries_count = parse_int(ltrim(rtrim(readline())));
+    int result_count;
+    int* result = jimOrders(n, 2, orders, &result_count);
 
-    char** queries = malloc(queries_count * sizeof(char*));
+    for (int i = 0; i < result_count; i++) {
+        fprintf(fptr, "%d", *(result + i));
 
-    for (int i = 0; i < queries_count; i++) {
-        char* queries_item = readline();
-
-        *(queries + i) = queries_item;
-    }
-
-    int res_count;
-    int* res = matchingStrings(stringList_count, stringList, queries_count, queries, &res_count);
-
-    for (int i = 0; i < res_count; i++) {
-        fprintf(fptr, "%d", *(res + i));
-
-        if (i != res_count - 1) {
-            fprintf(fptr, "\n");
+        if (i != result_count - 1) {
+            fprintf(fptr, " ");
         }
     }
 
@@ -203,6 +204,27 @@ char* rtrim(char* str) {
     *(end + 1) = '\0';
 
     return str;
+}
+
+char** split_string(char* str) {
+    char** splits = NULL;
+    char* token = strtok(str, " ");
+
+    int spaces = 0;
+
+    while (token) {
+        splits = realloc(splits, sizeof(char*) * ++spaces);
+
+        if (!splits) {
+            return splits;
+        }
+
+        splits[spaces - 1] = token;
+
+        token = strtok(NULL, " ");
+    }
+
+    return splits;
 }
 
 int parse_int(char* str) {
